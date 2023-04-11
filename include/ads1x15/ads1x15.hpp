@@ -1,0 +1,168 @@
+/*
+ * File: ads1x15.hpp
+ * Description:
+ * ADC ADS1015 ADS1115 library hpp file for RPI Rp2040 PICO C++ SDK
+ * Description: See URL for full details.
+ * URL: https://github.com/gavinlyonsrepo/ADS1x15_PICO
+ */
+
+#ifndef __ADS1X15LIB__
+#define __ADS1X15LIB__
+
+
+#include <stdio.h> // optional for printf debug error messages
+#include "pico/stdlib.h"
+#include "hardware/i2c.h"
+
+// I2C interface
+#define ADSX_ADDRESS (0x48) // I2C address, see readme notes
+#define ADSX_I2C_DELAY 50000 // uS delay , I2C timeout
+//#define ADS_SERIAL_DEBUG 1 // comment this in for serial debugging 
+
+// Register Pointers
+#define ADSX_REG_POINTER_MASK (0x03)      // Point mask
+#define ADSX_REG_POINTER_CONVERT (0x00)   // Conversion
+#define ADSX_REG_POINTER_CONFIG (0x01)    // Configuration
+#define ADSX_REG_POINTER_LOWTHRESH (0x02) // Low threshold
+#define ADSX_REG_POINTER_HITHRESH (0x03)  // High threshold
+
+// Register Configs
+#define ADSX_REG_CONFIG_OS_MASK (0x8000) // OS Mask
+#define ADSX_REG_CONFIG_OS_SINGLE (0x8000) // Write: Set to start a single-conversion
+#define ADSX_REG_CONFIG_OS_BUSY (0x0000) // Rw: Bit=0 when conversion is in progress
+#define ADSX_REG_CONFIG_OS_NOTBUSY (0x8000) // Rw: Bit=1 when dev is not performing a conversion
+#define ADSX_REG_CONFIG_MUX_MASK (0x7000) // Mux Mask
+#define ADSX_REG_CONFIG_MUX_DIFF_0_1 (0x0000) // Differential P = AIN0, N = AIN1 (default)
+#define ADSX_REG_CONFIG_MUX_DIFF_0_3 (0x1000) // Differential P = AIN0, N = AIN3
+#define ADSX_REG_CONFIG_MUX_DIFF_1_3 (0x2000) // Differential P = AIN1, N = AIN3
+#define ADSX_REG_CONFIG_MUX_DIFF_2_3 (0x3000) // Differential P = AIN2, N = AIN3
+#define ADSX_REG_CONFIG_MUX_SINGLE_0 (0x4000) // Single-ended AIN0
+#define ADSX_REG_CONFIG_MUX_SINGLE_1 (0x5000) // Single-ended AIN1
+#define ADSX_REG_CONFIG_MUX_SINGLE_2 (0x6000) // Single-ended AIN2
+#define ADSX_REG_CONFIG_MUX_SINGLE_3 (0x7000) // Single-ended AIN3
+
+constexpr uint16_t MUX_BY_CHANNEL[] = {
+    ADSX_REG_CONFIG_MUX_SINGLE_0, // Single-ended AIN0
+    ADSX_REG_CONFIG_MUX_SINGLE_1, // Single-ended AIN1
+    ADSX_REG_CONFIG_MUX_SINGLE_2, // Single-ended AIN2
+    ADSX_REG_CONFIG_MUX_SINGLE_3  // Single-ended AIN3
+};                                   // MUX config by channel
+
+#define ADSX_REG_CONFIG_PGA_MASK (0x0E00)   // PGA Mask
+#define ADSX_REG_CONFIG_PGA_6_144V (0x0000) // +/-6.144V range = Gain 2/3
+#define ADSX_REG_CONFIG_PGA_4_096V (0x0200) // +/-4.096V range = Gain 1
+#define ADSX_REG_CONFIG_PGA_2_048V (0x0400) // +/-2.048V range = Gain 2 (default)
+#define ADSX_REG_CONFIG_PGA_1_024V (0x0600) // +/-1.024V range = Gain 4
+#define ADSX_REG_CONFIG_PGA_0_512V (0x0800) // +/-0.512V range = Gain 8
+#define ADSX_REG_CONFIG_PGA_0_256V (0x0A00) // +/-0.256V range = Gain 16
+#define ADSX_REG_CONFIG_MODE_MASK (0x0100)   // Mode Mask
+#define ADSX_REG_CONFIG_MODE_CONTIN (0x0000) // Continuous conversion mode
+#define ADSX_REG_CONFIG_MODE_SINGLE (0x0100) // Power-down single-shot mode (default)
+
+typedef enum 
+{
+	ADSContinuousMode = true, 
+	ADSSingleShotMode = false, 
+}ConfigMode_e; // Configuration mode
+
+#define ADSX_REG_CONFIG_RATE_MASK (0x00E0) // Data Rate Mask
+#define ADSX_REG_CONFIG_CMODE_MASK (0x0010) // CMode Mask
+#define ADSX_REG_CONFIG_CMODE_TRAD (0x0000) // Traditional comparator with hysteresis (default)
+#define ADSX_REG_CONFIG_CMODE_WINDOW (0x0010) // Window comparator
+#define ADSX_REG_CONFIG_CPOL_MASK (0x0008) // CPol Mask
+#define ADSX_REG_CONFIG_CPOL_ACTVLOW (0x0000) // ALERT/RDY pin is low when active (default)
+#define ADSX_REG_CONFIG_CPOL_ACTVHI (0x0008) // ALERT/RDY pin is high when active
+
+#define ADSX_REG_CONFIG_CLAT_MASK (0x0004) // Determines if ALERT/RDY pin latches once asserted
+#define ADSX_REG_CONFIG_CLAT_NONLAT (0x0000) // Non-latching comparator (default)
+#define ADSX_REG_CONFIG_CLAT_LATCH (0x0004) // Latching comparator
+
+#define ADSX_REG_CONFIG_CQUE_MASK (0x0003) // CQue Mask
+#define ADSX_REG_CONFIG_CQUE_1CONV (0x0000) // Assert ALERT/RDY after one conversions
+#define ADSX_REG_CONFIG_CQUE_2CONV (0x0001) // Assert ALERT/RDY after two conversions
+#define ADSX_REG_CONFIG_CQUE_4CONV (0x0002) // Assert ALERT/RDY after four conversions
+#define ADSX_REG_CONFIG_CQUE_NONE (0x0003) // Disable the comparator and put ALERT/RDY in high state (default)
+
+// Gain Settings
+typedef enum {
+  GAIN_TWOTHIRDS = ADSX_REG_CONFIG_PGA_6_144V,
+  GAIN_ONE = ADSX_REG_CONFIG_PGA_4_096V,
+  GAIN_TWO = ADSX_REG_CONFIG_PGA_2_048V,
+  GAIN_FOUR = ADSX_REG_CONFIG_PGA_1_024V,
+  GAIN_EIGHT = ADSX_REG_CONFIG_PGA_0_512V,
+  GAIN_SIXTEEN = ADSX_REG_CONFIG_PGA_0_256V
+} adsGain_e;
+
+// Data Rates
+#define RATE_ADS1015_128SPS (0x0000)  // 128 samples per second
+#define RATE_ADS1015_250SPS (0x0020)  // 250 samples per second
+#define RATE_ADS1015_490SPS (0x0040)  // 490 samples per second
+#define RATE_ADS1015_920SPS (0x0060)  // 920 samples per second
+#define RATE_ADS1015_1600SPS (0x0080) // 1600 samples per second (default)
+#define RATE_ADS1015_2400SPS (0x00A0) // 2400 samples per second
+#define RATE_ADS1015_3300SPS (0x00C0) // 3300 samples per second
+
+#define RATE_ADS1115_8SPS (0x0000)   // 8 samples per second
+#define RATE_ADS1115_16SPS (0x0020)  // 16 samples per second
+#define RATE_ADS1115_32SPS (0x0040)  // 32 samples per second
+#define RATE_ADS1115_64SPS (0x0060)  // 64 samples per second
+#define RATE_ADS1115_128SPS (0x0080) // 128 samples per second (default)
+#define RATE_ADS1115_250SPS (0x00A0) // 250 samples per second
+#define RATE_ADS1115_475SPS (0x00C0) // 475 samples per second
+#define RATE_ADS1115_860SPS (0x00E0) // 860 samples per second
+
+// Super class for all varients ADS1x15
+class PICO_ADS1X15 {
+public:
+  
+  bool beginADSX(uint8_t addr, i2c_inst_t* type, uint16_t speed, uint8_t SDA, uint8_t SCLK);
+  
+  void setGain(adsGain_e gain);
+  adsGain_e getGain();
+  void setDataRate(uint16_t rate);
+  uint16_t getDataRate();
+  
+  int16_t readADC_SingleEnded(uint8_t channel);
+  
+  int16_t readADC_Diff01();
+  int16_t readADC_Diff03();
+  int16_t readADC_Diff13();
+  int16_t readADC_Diff23();
+  
+  void startComparator_SingleEnded(uint8_t channel, int16_t threshold);
+  int16_t getLastConversionResults();
+  void startADCReading(uint16_t mux, ConfigMode_e mode);
+  float computeVolts(int16_t counts);
+  bool conversionComplete();
+
+protected:
+  uint8_t _BitShift; // bit shift amount
+  adsGain_e _ADCGain; // PGA ADC gain
+  uint16_t _DataRate; // Data rate
+
+private:
+  i2c_inst_t *_i2c; // i2C port number i2c0 or i2c1
+  uint8_t _SDataPin;
+  uint8_t _SClkPin;
+  uint16_t _CLKSpeed = 100; //I2C bus speed in khz typically 100-400
+  uint8_t _AddresI2C = ADSX_ADDRESS;
+  uint8_t _dataBuffer[3];
+
+  void writeRegister(uint8_t reg, uint16_t value);
+  uint16_t readRegister(uint8_t reg);
+  
+};
+
+// ADS1015 sub class
+class PICO_ADS1015 : public PICO_ADS1X15 {
+public:
+  PICO_ADS1015();
+};
+
+// ADS1115 sub class
+class PICO_ADS1115 : public PICO_ADS1X15 {
+public:
+  PICO_ADS1115();
+};
+
+#endif 
