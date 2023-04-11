@@ -30,7 +30,8 @@ ADC Ultra-Small, Low-Power, I2C-Compatible, With Internal Reference, Oscillator,
 	3. CMAKE , VScode
 
 * Only tested at present on ADS1015 12 bit device, should work on ADS1115 as well
-
+* Lets the user add 4 more ADC channels to a PICO RP2040
+  
 Examples
 ---------------------
 
