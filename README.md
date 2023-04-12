@@ -30,6 +30,7 @@ ADC Ultra-Small, Low-Power, I2C-Compatible, With Internal Reference, Oscillator,
 	3. CMAKE , VScode
 
 * Only tested at present on ADS1015 12 bit device, should work on ADS1115 as well
+* By adjusting the I2C address you can add 4 of these devices on the I2C bus.
 
 Examples
 ---------------------
@@ -74,18 +75,18 @@ The ADC input range or gain can be changed  with setGain()
 method, but NEVER exceed VDD +0.3V max, or to
 exceed the upper and lower limits if you adjust the input range.
 Setting these values incorrectly may damage the ADC module.
-The default if setGain() not called is GAIN_TWOTHIRDS. 
-All examples files are set to GAIN_ONE. See datasheet 8.3.3
+The default if setGain() not called is ADSXGain_TWOTHIRDS. 
+All examples files are set to ADSXGain_ONE. See datasheet 8.3.3
 Programmable gain amplifier(PGA settings) 
 
 | Argument to setGain(arg) | Voltage range | ADS1015 Res.  per 1 bit  |  ADS1115  Res. per  1 bit |
 | --- | --- | --- | --- |
-| GAIN_TWOTHIRDS | 2/3 gain +/- 6.144V | 3mV | 0.1875mV |
-| GAIN_ONE | 1x gain +/- 4.096V | 2mV | 0.125mV |
-| GAIN_TWO | 2x gain +/- 2.048V| 1mV | 0.0625mV |
-| GAIN_FOUR | 4x gain +/- 1.024V | 0.5mV | 0.03125mV |
-| GAIN_EIGHT | 8x gain +/- 0.512V | 0.25mV | 0.015625mV |
-| GAIN_SIXTEEN | 16x gain +/- 0.256V  | 0.125mV | 0.0078125mV |
+| ADSXGain_TWOTHIRDS | 2/3 gain +/- 6.144V | 3mV | 0.1875mV |
+| ADSXGain_ONE | 1x gain +/- 4.096V | 2mV | 0.125mV |
+| ADSXGain_TWO | 2x gain +/- 2.048V| 1mV | 0.0625mV |
+| ADSXGain_FOUR | 4x gain +/- 1.024V | 0.5mV | 0.03125mV |
+| ADSXGain_EIGHT | 8x gain +/- 0.512V | 0.25mV | 0.015625mV |
+| ADSXGain_SIXTEEN | 16x gain +/- 0.256V  | 0.125mV | 0.0078125mV |
 
 **Data Rate Settings**
 Data rate can also be set(method setDataRate). See "Data rate" section in header files for all values. Default(mid range) is ADS1015 = 1600 SPS,  ADS1115 = 128 SPS.
@@ -103,13 +104,11 @@ significantly reduced during idle periods.
 In continuous-conversion mode (MODE bit set to 0), the ADS1X15 perform conversions continuously. It outputs an 8uS pulse on the ALERT line when ready. This can be used to trigger an interrupt to tell PICO to collect the ready data.
 ![image](https://github.com/gavinlyonsrepo/ADS1x15_PICO/blob/main/extra/doc/images/3.jpg)
 
-Differential. The differential reading of the ADC can also be done with asynchronous calls
-measuring the difference in volatge between two channels.
-4 methods are available. Two differential measurements can be performed.
+Differential. The differential reading of the ADC can also be done with asynchronous calls measuring the difference in voltage between two channels.
 
 Single ended. Four single-ended input measurements Can be performed on the 4 channels.
 
-Comparator Mode. The ADS  sensor feature a programmable digital comparator that can issue an alert on the ALERT pin when a threshold is passed.. The settings are set to default can be changed within the "startComparator_SingleEnded" method. 
+Comparator Mode. The ADS sensor feature a programmable digital comparator that can issue an alert on the ALERT pin when a threshold is passed. The settings are set to default can be changed within the "startComparator_SingleEnded" method.
 
 
 Hardware

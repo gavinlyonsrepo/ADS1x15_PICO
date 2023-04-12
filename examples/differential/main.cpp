@@ -25,11 +25,11 @@ int main  ()
   int16_t results = 0;
 
   // Update this value based on the IC and the gain settings! 
-  // In this case ADS1015 GAIN_ONE = 2mV aka 2.0 multiplier see README
-  float multiplier = 2.0F;  // ADS1015 GAIN_ONE (12-bit results) 
-  ads.setGain(GAIN_ONE);
+  // In this case ADS1015 ADSXGain_ONE = 2mV aka 2.0 multiplier see README
+  float multiplier = 2.0F;  // ADS1015 ADSXGain_ONE (12-bit results) 
+  ads.setGain(ADSXGain_ONE);
 
-  if (!ads.beginADSX(ADSX_ADDRESS, i2c1, 100, 18,19)) {
+  if (!ads.beginADSX(ADSX_ADDRESS_GND, i2c1, 100, 18,19)) {
     printf("Failed to initialize ADS.\r\n");
     while (1);
   }

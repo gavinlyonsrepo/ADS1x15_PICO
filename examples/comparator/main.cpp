@@ -24,14 +24,14 @@ int main(){
   printf("Comp Threshold: 1000 : ALERT pin active low\r\n");
   
   int16_t adc0;
-  ads.setGain(GAIN_ONE);
+  ads.setGain(ADSXGain_ONE);
 
-  if (!ads.beginADSX(ADSX_ADDRESS, i2c1, 100, 18,19)) {
+  if (!ads.beginADSX(ADSX_ADDRESS_GND, i2c1, 100, 18,19)) {
     printf("Failed to initialize ADS.\r\n");
     while (1);
   }
   // Setup comparator on channel 0
-  ads.startComparator_SingleEnded(0, 1000);
+  ads.startComparator_SingleEnded(ADSX_AIN0, 1000);
 
   while (1)
   {

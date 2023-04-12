@@ -25,15 +25,15 @@ int main() {
   printf("ADS1x15 : Conversion NON-Interrupt , single-shot!\r\n");
   printf("Getting differential reading from AIN0 (P) and AIN1 (N)\r\n");
 
-  ads.setGain(GAIN_ONE);
+  ads.setGain(ADSXGain_ONE);
 
-  if (!ads.beginADSX(ADSX_ADDRESS, i2c1, 100, 18,19)) {
+  if (!ads.beginADSX(ADSX_ADDRESS_GND, i2c1, 100, 18,19)) {
     printf("Failed to initialize ADS.\r\n");
     while (1);
   }
 
   // Start the first conversion. single shot
-  ads.startADCReading(ADSX_REG_CONFIG_MUX_DIFF_0_1, ADSSingleShotMode);
+  ads.startADCReading(ADSXRegConfigMuxDiff_0_1, ADSSingleShotMode);
 
   while(1)
   {
@@ -45,7 +45,7 @@ int main() {
       printf("Differential: %i  %f  V\n", results , volts); 
 
       // Start another conversion, single shot
-      ads.startADCReading(ADSX_REG_CONFIG_MUX_DIFF_0_1, ADSSingleShotMode);
+      ads.startADCReading(ADSXRegConfigMuxDiff_0_1, ADSSingleShotMode);
       busy_wait_ms(2500);
     }
    

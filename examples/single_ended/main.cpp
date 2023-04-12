@@ -27,9 +27,9 @@ int main() {
   int16_t adc0, adc1, adc2, adc3;
   float volts0, volts1, volts2, volts3;
 
-  ads.setGain(GAIN_ONE);
+  ads.setGain(ADSXGain_ONE);
 
-  if (!ads.beginADSX(ADSX_ADDRESS, i2c1, 100, 18,19)) {
+  if (!ads.beginADSX(ADSX_ADDRESS_GND, i2c1, 100, 18,19)) {
     printf("ADS1x15 : Failed to initialize ADS.!\r\n");
     while (1);
   }
@@ -37,10 +37,10 @@ int main() {
   // Forever Loop
   while(1)
   {
-    adc0 = ads.readADC_SingleEnded(0);
-    adc1 = ads.readADC_SingleEnded(1);
-    adc2 = ads.readADC_SingleEnded(2);
-    adc3 = ads.readADC_SingleEnded(3);
+    adc0 = ads.readADC_SingleEnded(ADSX_AIN0);
+    adc1 = ads.readADC_SingleEnded(ADSX_AIN1);
+    adc2 = ads.readADC_SingleEnded(ADSX_AIN2);
+    adc3 = ads.readADC_SingleEnded(ADSX_AIN3);
 
     volts0 = ads.computeVolts(adc0);
     volts1 = ads.computeVolts(adc1);

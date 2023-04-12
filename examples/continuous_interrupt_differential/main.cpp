@@ -37,9 +37,9 @@ int main () {
   gpio_set_dir(READY_PIN, GPIO_IN);
   gpio_pull_up(READY_PIN);
 
-  ads.setGain(GAIN_ONE);
+  ads.setGain(ADSXGain_ONE);
 
-  if (!ads.beginADSX(ADSX_ADDRESS, i2c1, 100, 18,19)) {
+  if (!ads.beginADSX(ADSX_ADDRESS_GND, i2c1, 100, 18,19)) {
     printf("ADS1x15 : Failed to initialize ADS.!\r\n");
     while (1);
   }
@@ -48,7 +48,7 @@ int main () {
   gpio_set_irq_enabled_with_callback(READY_PIN, GPIO_IRQ_EDGE_FALL, true, &gpio_callback);
 
   // Start continuous conversions.
-  ads.startADCReading(ADSX_REG_CONFIG_MUX_DIFF_0_1, ADSContinuousMode);
+  ads.startADCReading(ADSXRegConfigMuxDiff_0_1, ADSContinuousMode);
 
   while(1) // loop here forever
   {

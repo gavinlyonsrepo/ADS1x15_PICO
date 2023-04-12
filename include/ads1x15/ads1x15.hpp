@@ -15,9 +15,15 @@
 #include "hardware/i2c.h"
 
 // I2C interface
-#define ADSX_ADDRESS (0x48) // I2C address, see readme notes
 #define ADSX_I2C_DELAY 50000 // uS delay , I2C timeout
 //#define ADS_SERIAL_DEBUG 1 // comment this in for serial debugging 
+
+typedef enum {
+  ADSX_ADDRESS_GND = 0x48, //default ADDR connected to gnd
+  ADSX_ADDRESS_VDD = 0x49, //ADDR connected to VDD
+  ADSX_ADDRESS_SDA = 0x4A, //ADDR connected to SDA
+  ADSX_ADDRESS_SCLK = 0x4B  //ADDR connected to SCLK
+}ADSXAddressI2C_e; // 8-bit I2C address
 
 // Register Pointers
 #define ADSX_REG_POINTER_MASK (0x03)      // Point mask
@@ -32,21 +38,24 @@
 #define ADSX_REG_CONFIG_OS_BUSY (0x0000) // Rw: Bit=0 when conversion is in progress
 #define ADSX_REG_CONFIG_OS_NOTBUSY (0x8000) // Rw: Bit=1 when dev is not performing a conversion
 #define ADSX_REG_CONFIG_MUX_MASK (0x7000) // Mux Mask
-#define ADSX_REG_CONFIG_MUX_DIFF_0_1 (0x0000) // Differential P = AIN0, N = AIN1 (default)
-#define ADSX_REG_CONFIG_MUX_DIFF_0_3 (0x1000) // Differential P = AIN0, N = AIN3
-#define ADSX_REG_CONFIG_MUX_DIFF_1_3 (0x2000) // Differential P = AIN1, N = AIN3
-#define ADSX_REG_CONFIG_MUX_DIFF_2_3 (0x3000) // Differential P = AIN2, N = AIN3
-#define ADSX_REG_CONFIG_MUX_SINGLE_0 (0x4000) // Single-ended AIN0
-#define ADSX_REG_CONFIG_MUX_SINGLE_1 (0x5000) // Single-ended AIN1
-#define ADSX_REG_CONFIG_MUX_SINGLE_2 (0x6000) // Single-ended AIN2
-#define ADSX_REG_CONFIG_MUX_SINGLE_3 (0x7000) // Single-ended AIN3
 
-constexpr uint16_t MUX_BY_CHANNEL[] = {
-    ADSX_REG_CONFIG_MUX_SINGLE_0, // Single-ended AIN0
-    ADSX_REG_CONFIG_MUX_SINGLE_1, // Single-ended AIN1
-    ADSX_REG_CONFIG_MUX_SINGLE_2, // Single-ended AIN2
-    ADSX_REG_CONFIG_MUX_SINGLE_3  // Single-ended AIN3
-};                                   // MUX config by channel
+typedef enum {
+  ADSXRegConfigMuxDiff_0_1 = 0x0000, // Differential P = AIN0, N = AIN1 (default)
+  ADSXRegConfigMuxDiff_0_3 = 0x1000, // Differential P = AIN0, N = AIN3
+  ADSXRegConfigMuxDiff_1_3 = 0x2000, // Differential P = AIN1, N = AIN3
+  ADSXRegConfigMuxDiff_2_3 = 0x3000, // Differential P = AIN2, N = AIN3
+  ADSXRegConfigMuxSingle_0 = 0x4000, // Single-ended AIN0
+  ADSXRegConfigMuxSingle_1 = 0x5000, // Single-ended AIN1
+  ADSXRegConfigMuxSingle_2 = 0x6000, // Single-ended AIN2
+  ADSXRegConfigMuxSingle_3 = 0x7000  // Single-ended AIN3
+} ADSXRegConfig_e;
+
+typedef enum {
+  ADSX_AIN0 = 0, // Channel AIN0
+  ADSX_AIN1 = 1, // Channel AIN1
+  ADSX_AIN2 = 2, // Channel AIN2
+  ADSX_AIN3 = 3  // Channel AIN3
+}ADSX_AINX_e; // ADC Channel Numbers
 
 #define ADSX_REG_CONFIG_PGA_MASK (0x0E00)   // PGA Mask
 #define ADSX_REG_CONFIG_PGA_6_144V (0x0000) // +/-6.144V range = Gain 2/3
@@ -63,7 +72,7 @@ typedef enum
 {
 	ADSContinuousMode = true, 
 	ADSSingleShotMode = false, 
-}ConfigMode_e; // Configuration mode
+}ADSXConfigMode_e; // Configuration mode
 
 #define ADSX_REG_CONFIG_RATE_MASK (0x00E0) // Data Rate Mask
 #define ADSX_REG_CONFIG_CMODE_MASK (0x0010) // CMode Mask
@@ -85,13 +94,13 @@ typedef enum
 
 // Gain Settings
 typedef enum {
-  GAIN_TWOTHIRDS = ADSX_REG_CONFIG_PGA_6_144V,
-  GAIN_ONE = ADSX_REG_CONFIG_PGA_4_096V,
-  GAIN_TWO = ADSX_REG_CONFIG_PGA_2_048V,
-  GAIN_FOUR = ADSX_REG_CONFIG_PGA_1_024V,
-  GAIN_EIGHT = ADSX_REG_CONFIG_PGA_0_512V,
-  GAIN_SIXTEEN = ADSX_REG_CONFIG_PGA_0_256V
-} adsGain_e;
+  ADSXGain_TWOTHIRDS = ADSX_REG_CONFIG_PGA_6_144V,
+  ADSXGain_ONE = ADSX_REG_CONFIG_PGA_4_096V,
+  ADSXGain_TWO = ADSX_REG_CONFIG_PGA_2_048V,
+  ADSXGain_FOUR = ADSX_REG_CONFIG_PGA_1_024V,
+  ADSXGain_EIGHT = ADSX_REG_CONFIG_PGA_0_512V,
+  ADSXGain_SIXTEEN = ADSX_REG_CONFIG_PGA_0_256V
+} ADSXGain_e;
 
 // Data Rates
 #define RATE_ADS1015_128SPS (0x0000)  // 128 samples per second
@@ -115,37 +124,37 @@ typedef enum {
 class PICO_ADS1X15 {
 public:
   
-  bool beginADSX(uint8_t addr, i2c_inst_t* type, uint16_t speed, uint8_t SDA, uint8_t SCLK);
+  bool beginADSX(ADSXAddressI2C_e addr, i2c_inst_t* type, uint16_t speed, uint8_t SDA, uint8_t SCLK);
   
-  void setGain(adsGain_e gain);
-  adsGain_e getGain();
+  void setGain(ADSXGain_e gain);
+  ADSXGain_e getGain();
   void setDataRate(uint16_t rate);
   uint16_t getDataRate();
   
-  int16_t readADC_SingleEnded(uint8_t channel);
-  
+  int16_t readADC_SingleEnded(ADSX_AINX_e channel);
+  void startComparator_SingleEnded(ADSX_AINX_e channel, int16_t threshold);
+
   int16_t readADC_Diff01();
   int16_t readADC_Diff03();
   int16_t readADC_Diff13();
   int16_t readADC_Diff23();
   
-  void startComparator_SingleEnded(uint8_t channel, int16_t threshold);
   int16_t getLastConversionResults();
-  void startADCReading(uint16_t mux, ConfigMode_e mode);
+  void startADCReading(ADSXRegConfig_e mux, ADSXConfigMode_e mode);
   float computeVolts(int16_t counts);
   bool conversionComplete();
 
 protected:
   uint8_t _BitShift; // bit shift amount
-  adsGain_e _ADCGain; // PGA ADC gain
+  ADSXGain_e _ADCGain; // PGA ADC gain
   uint16_t _DataRate; // Data rate
 
 private:
   i2c_inst_t *_i2c; // i2C port number i2c0 or i2c1
   uint8_t _SDataPin;
   uint8_t _SClkPin;
-  uint16_t _CLKSpeed = 100; //I2C bus speed in khz typically 100-400
-  uint8_t _AddresI2C = ADSX_ADDRESS;
+  uint16_t _CLKSpeed = 100; //I2C bus speed in khz
+  ADSXAddressI2C_e _AddresI2C = ADSX_ADDRESS_GND;
   uint8_t _dataBuffer[3];
 
   void writeRegister(uint8_t reg, uint16_t value);
