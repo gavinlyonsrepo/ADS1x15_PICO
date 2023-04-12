@@ -31,6 +31,7 @@ ADC Ultra-Small, Low-Power, I2C-Compatible, With Internal Reference, Oscillator,
 
 * Only tested at present on ADS1015 12 bit device, should work on ADS1115 as well
 * By adjusting the I2C address you can add 4 of these devices on the I2C bus.
+* Lets the user add 4 more ADC channels to a PICO RP2040
 
 Examples
 ---------------------
