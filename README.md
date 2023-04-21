@@ -53,6 +53,7 @@ Software
 ------------------
 
 **Constructor's**
+
 There are two different constructors one for ADS1015 (12 bit) and one for ADS1115 (16 bit)
 All examples files are setup for ADS1015. ADS1115 not tested but should work.
 
@@ -129,3 +130,5 @@ Hardware
 | SCL | Digital input Serial clock input. Clocks data on SDA |
 | GND | Ground |
 | VCC  | Power supply 2-5V in PICO case connect to 3.3v|
+
+![image 3](https://github.com/gavinlyonsrepo/ADS1x15_PICO/blob/main/extra/doc/images/hw.jpg)

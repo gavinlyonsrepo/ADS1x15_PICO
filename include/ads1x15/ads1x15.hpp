@@ -125,7 +125,8 @@ class PICO_ADS1X15 {
 public:
   
   bool beginADSX(ADSXAddressI2C_e addr, i2c_inst_t* type, uint16_t speed, uint8_t SDA, uint8_t SCLK);
-  
+  void deinitI2C();
+
   void setGain(ADSXGain_e gain);
   ADSXGain_e getGain();
   void setDataRate(uint16_t rate);

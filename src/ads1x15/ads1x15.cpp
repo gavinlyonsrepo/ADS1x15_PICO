@@ -59,6 +59,14 @@ bool PICO_ADS1X15::beginADSX(ADSXAddressI2C_e i2c_addr, i2c_inst_t* i2c_type, ui
   return true;
 }
 
+// Switch off the  I2C
+void PICO_ADS1X15::deinitI2C()
+{
+    gpio_set_function(_SDataPin, GPIO_FUNC_NULL);
+    gpio_set_function(_SClkPin, GPIO_FUNC_NULL);
+    i2c_deinit(_i2c); 	
+}
+
 // Desc :: Sets the gain and input voltage range
 // Param 1 :: enum ADSXGain_e , Gain setting to use
 void PICO_ADS1X15::setGain(ADSXGain_e gain) { _ADCGain = gain; }
