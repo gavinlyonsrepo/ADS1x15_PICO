@@ -4,16 +4,20 @@
 
 ![image](https://github.com/gavinlyonsrepo/ADS1x15_PICO/blob/main/extra/doc/images/ads.jpg)
 
-Table of contents
----------------------------
+## Table of contents
 
   * [Overview](#overview)
   * [Examples](#examples)
-  * [Software](#software)  
+  * [Software](#software)
+    * [Constructor](#constructor)
+    * [I2C settings](#i2c-settings)
+    * [Gain settings](#gain-settings)
+    * [Data rate settings](#data-rate-settings)
+    * [Modes](#modes)
   * [Hardware](#hardware)
 
-Overview
------------------
+## Overview
+
 * Name: ADS1x15_PICO
 * Description:
 
@@ -33,8 +37,8 @@ ADC Ultra-Small, Low-Power, I2C-Compatible, With Internal Reference, Oscillator,
 * By adjusting the I2C address you can add 4 of these devices on the I2C bus.
 * Lets the user add 4 more ADC channels to a PICO RP2040
 
-Examples
----------------------
+## Examples
+
 
 There are five example files.
 The example files are in example folder. To build the one you want, edit the Cmaketxt file add_executable(${PROJECT_NAME} section, comment in one example file path and one only. 
@@ -49,15 +53,15 @@ The example files are in example folder. To build the one you want, edit the Cma
 
 The example files output Data to the PC serial port using printf,  default settings.(baud rate 38400). See "modes" section below for more information.
 
-Software
-------------------
+## Software
 
-**Constructor's**
+
+### Constructor
 
 There are two different constructors one for ADS1015 (12 bit) and one for ADS1115 (16 bit)
 All examples files are setup for ADS1015. ADS1115 not tested but should work.
 
-**I2C settings**
+### I2C settings
 
 In the beginADSX method the user can pass in a number of I2C related arguments.
 In the header file it is also possible to turn on I2C debugging messages and
@@ -71,7 +75,7 @@ adjust the timeout of the I2C functions if necessary.
 | I2C data line | GPIO 18 |
 | I2C clock Line | GPIO 19 |
 
-**Gain settings**
+### Gain settings
 
 The ADC input range or gain can be changed  with setGain()
 method, but NEVER exceed VDD +0.3V max, or to
@@ -90,10 +94,10 @@ Programmable gain amplifier(PGA settings)
 | ADSXGain_EIGHT | 8x gain +/- 0.512V | 0.25mV | 0.015625mV |
 | ADSXGain_SIXTEEN | 16x gain +/- 0.256V  | 0.125mV | 0.0078125mV |
 
-**Data Rate Settings**
+### Data rate settings
 Data rate can also be set(method setDataRate). See "Data rate" section in header files for all values. Default(mid range) is ADS1015 = 1600 SPS,  ADS1115 = 128 SPS.
 
-**Modes**
+### Modes
 
 Operational mode , the ADS sensor can operate in single shot or continuous mode.
 Depending on how often conversions needed you can tune the mode.
@@ -112,9 +116,7 @@ Single ended. Four single-ended input measurements Can be performed on the 4 cha
 
 Comparator Mode. The ADS sensor feature a programmable digital comparator that can issue an alert on the ALERT pin when a threshold is passed. The settings are set to default can be changed within the "startComparator_SingleEnded" method.
 
-
-Hardware
---------------------
+## Hardware
 
 **Pinout**
 
