@@ -6,7 +6,7 @@
  * URL: https://github.com/gavinlyonsrepo/ADS1x15_PICO
  */
 
-#include "../include/ads1x15/ads1x15.hpp"
+#include "../../include/ads1x15/ads1x15.hpp"
 
 // Constructor ADS1015 sub class
 PICO_ADS1015::PICO_ADS1015() {
