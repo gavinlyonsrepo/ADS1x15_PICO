@@ -1,5 +1,5 @@
 # Set minimum required version of CMake
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.18)
 
 # Include build functions from Pico SDK
 include($ENV{PICO_SDK_PATH}/external/pico_sdk_import.cmake)
@@ -13,7 +13,7 @@ set(CMAKE_CXX_STANDARD 20)
 pico_sdk_init()
 
 # turn on all compiler warnings 
-add_compile_options(-Wall)
+add_compile_options(-Wall -Wextra)
 
 # Tell CMake where to find the executable source file
 add_executable(${PROJECT_NAME}

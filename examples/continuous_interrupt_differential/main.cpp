@@ -1,9 +1,9 @@
-/*
- * File: main.cpp
- * Description:
+/*!
+ * @file main.cpp
+ * @brief
  * ADC ADS1015 example file for RPI Rp2040 PICO C++ SDK
  * Shows use of Continuous Differential mode using an interrupt from ALERT pin.
- * Description: See URL for full details.
+ * @brief See URL for full details.
  * URL: https://github.com/gavinlyonsrepo/ADS1x15_PICO
  */
 
@@ -13,6 +13,10 @@
 #include "ads1x15/ads1x15.hpp"
 
 PICO_ADS1015 ads; // 12 bit ADS1015
+uint16_t I2CSpeed = 100;		 // I2C speed in Khz
+uint8_t DataGPIO = 18;			 // I2C GPIO for data line
+uint8_t ClockGPIO = 19;			 // I2C GPIO for Clock line
+uint32_t I2CTimeout = 50000; // I2C timeout delay in uS.
 
 // Interrupt related parameters
 volatile bool newData = false;
@@ -37,9 +41,9 @@ int main () {
   gpio_set_dir(READY_PIN, GPIO_IN);
   gpio_pull_up(READY_PIN);
 
-  ads.setGain(ADSXGain_ONE);
+  ads.setGain(ads.ADSXGain_ONE);
 
-  if (!ads.beginADSX(ADSX_ADDRESS_GND, i2c1, 100, 18,19)) {
+  if (!ads.beginADSX(ads.ADSX_ADDRESS_GND, i2c1, I2CSpeed, DataGPIO, ClockGPIO, I2CTimeout)) {
     printf("ADS1x15 : Failed to initialize ADS.!\r\n");
     while (1);
   }
@@ -48,7 +52,7 @@ int main () {
   gpio_set_irq_enabled_with_callback(READY_PIN, GPIO_IRQ_EDGE_FALL, true, &gpio_callback);
 
   // Start continuous conversions.
-  ads.startADCReading(ADSXRegConfigMuxDiff_0_1, ADSContinuousMode);
+  ads.startADCReading(ads.ADSXRegConfigMuxDiff_0_1, ads.ADSContinuousMode);
 
   while(1) // loop here forever
   {

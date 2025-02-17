@@ -19,7 +19,7 @@
 ## Overview
 
 * Name: ADS1x15_PICO
-* Description:
+* @brief
 
 Library Driver for  ADC sensor,  ADS1015 and ADS1115 modules,
 for Raspberry pi PICO RP2040. 
@@ -41,7 +41,7 @@ ADC Ultra-Small, Low-Power, I2C-Compatible, With Internal Reference, Oscillator,
 
 
 There are five example files.
-The example files are in example folder. To build the one you want, edit the Cmaketxt file add_executable(${PROJECT_NAME} section, comment in one example file path and one only. 
+The example files are in example folder. To build the one you want, edit the CMakeLists.txt file add_executable(${PROJECT_NAME} section, comment in one example file path and one only. 
 
 | Path Name | Function |
 | --- | --- |
