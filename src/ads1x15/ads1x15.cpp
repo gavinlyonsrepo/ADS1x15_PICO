@@ -7,7 +7,7 @@
 
 #include "../../include/ads1x15/ads1x15.hpp"
 
-// Constructor ADS1015 sub class
+/*! @brief Constructor ADS1015 sub class */
 PICO_ADS1015::PICO_ADS1015()
 {
 	_BitShift = 4;
@@ -15,7 +15,7 @@ PICO_ADS1015::PICO_ADS1015()
 	_DataRate = ADSX::RATE_ADS1015_1600SPS;
 }
 
-// Constructor ADS1115 sub class
+/*! @brief Constructor ADS1115 sub class */
 PICO_ADS1115::PICO_ADS1115()
 {
 	_BitShift = 0;
@@ -23,14 +23,16 @@ PICO_ADS1115::PICO_ADS1115()
 	_DataRate = ADSX::RATE_ADS1115_128SPS;
 }
 
-// @brief Sets up the I2C interface
-// @param i2c_addr, enum ADSX_AddressI2C_e : I2C address 8 bit address
-// @param i2c_type i2c_inst_t* : I2C instance of port, IC20 or I2C1
-// @param CLKspeed uint16_t : I2C Bus Clock speed in KHz. see 8.5.1.3 datasheet
-// @param SDApin : I2C Data pin
-// @param SCLKpin, uint8_t : I2C Clock pin
-// @param I2CDelay I2C timeout in uS 
-// @return : bool :true if successful, otherwise false
+/*!
+	@brief Sets up the I2C interface
+	@param i2c_addr enum ADSX_AddressI2C_e : I2C address 8 bit address
+	@param i2c_type i2c_inst_t* : I2C instance of port, IC20 or I2C1
+	@param CLKspeed uint16_t : I2C Bus Clock speed in KHz. see 8.5.1.3 datasheet
+	@param SDApin : I2C Data pin
+	@param SCLKpin: I2C Clock pin
+	@param I2CDelay I2C timeout in uS 
+	@return bool :true if successful, otherwise false
+*/
 bool PICO_ADS1X15::beginADSX(ADSXAddressI2C_e i2c_addr, i2c_inst_t *i2c_type, uint16_t CLKspeed, uint8_t SDApin, uint8_t SCLKpin, uint32_t I2CDelay)
 {
 	_AddresI2C = i2c_addr;
@@ -63,7 +65,7 @@ bool PICO_ADS1X15::beginADSX(ADSXAddressI2C_e i2c_addr, i2c_inst_t *i2c_type, ui
 	return true;
 }
 
-// Switch off the  I2C
+/*! @brief Switch off the  I2C */
 void PICO_ADS1X15::deinitI2C()
 {
 	gpio_set_function(_SDataPin, GPIO_FUNC_NULL);
@@ -71,25 +73,35 @@ void PICO_ADS1X15::deinitI2C()
 	i2c_deinit(_i2c);
 }
 
-// @brief Sets the gain and input voltage range
-// @param enum ADSXGain_e , Gain setting to use
+/*!
+	@brief Sets the gain and input voltage range
+	@param gain enum ADSXGain_e , Gain setting to use
+*/
 void PICO_ADS1X15::setGain(ADSXGain_e gain) { _ADCGain = gain; }
 
-// @brief Gets the gain and input voltage range
-// @return enum ADSXGain_e , Gain setting in use
+/*!
+	@brief Gets the gain and input voltage range
+	@return enum ADSXGain_e , Gain setting in use
+*/
 PICO_ADS1X15::ADSXGain_e PICO_ADS1X15::getGain() { return _ADCGain; }
 
-// @brief Sets the data rate
-// @param rate uint16_t : Data rate to use
+/*!
+	@brief Sets the data rate
+	@param rate uint16_t : Data rate to use
+*/
 void PICO_ADS1X15::setDataRate(uint16_t rate) { _DataRate = rate; }
 
-// @brief Gets the current data rate
-// @return  uint16_t : Data rate in use
+/*!
+	@brief Gets the current data rate
+	@return  uint16_t : Data rate in use
+*/
 uint16_t PICO_ADS1X15::getDataRate() { return _DataRate; }
 
-// @brief Gets a single-ended ADC reading from the specified channel
-// @param channel enum ADSX_AINX_e : Adc channel to read 0-3
-// @return ADC reading
+/*!
+	@brief Gets a single-ended ADC reading from the specified channel
+	@param channel enum ADSX_AINX_e : Adc channel to read 0-3
+	@return ADC reading
+*/
 int16_t PICO_ADS1X15::readADC_SingleEnded(ADSX_AINX_e channel)
 {
 	if (channel > 3)
@@ -120,9 +132,11 @@ int16_t PICO_ADS1X15::readADC_SingleEnded(ADSX_AINX_e channel)
 	return getLastConversionResults();
 }
 
-// @brief Reads the conversion results difference between the P (AIN0) and N (AIN1) input.
-// @return int16_t : The ADC reading a signed value since the difference
-// can be either positive or negative.
+/*!
+	@brief Reads the conversion results difference between the P (AIN0) and N (AIN1) input.
+	@return int16_t : The ADC reading a signed value since the difference
+	can be either positive or negative.
+*/
 int16_t PICO_ADS1X15::readADC_Diff01()
 {
 	startADCReading(ADSXRegConfigMuxDiff_0_1, ADSSingleShotMode);
@@ -132,9 +146,11 @@ int16_t PICO_ADS1X15::readADC_Diff01()
 	return getLastConversionResults(); // Read the conversion results
 }
 
-// @brief Reads the conversion results difference between the P (AIN0) and N (AIN3) input.
-// @return int16_t : The ADC reading a signed value since the difference
-// can be either positive or negative.
+/*!
+	@brief Reads the conversion results difference between the P (AIN0) and N (AIN3) input.
+	@return int16_t : The ADC reading a signed value since the difference
+		can be either positive or negative.
+*/
 int16_t PICO_ADS1X15::readADC_Diff03()
 {
 	startADCReading(ADSXRegConfigMuxDiff_0_3, ADSSingleShotMode);
@@ -147,9 +163,11 @@ int16_t PICO_ADS1X15::readADC_Diff03()
 	return getLastConversionResults();
 }
 
-// @brief Reads the conversion results difference between the P (AIN1) and N (AIN3) input.
-// @return int16_t : The ADC reading a signed value since the difference
-// can be either positive or negative.
+/*!
+	@brief Reads the conversion results difference between the P (AIN1) and N (AIN3) input.
+	@return int16_t : The ADC reading a signed value since the difference
+		can be either positive or negative.
+*/
 int16_t PICO_ADS1X15::readADC_Diff13()
 {
 	startADCReading(ADSXRegConfigMuxDiff_1_3, ADSSingleShotMode);
@@ -162,9 +180,11 @@ int16_t PICO_ADS1X15::readADC_Diff13()
 	return getLastConversionResults();
 }
 
-// @brief Reads the conversion results difference between the P (AIN2) and N (AIN3) input.
-// @return :: int16_t : The ADC reading a signed value since the difference
-// can be either positive or negative.
+/*!
+	@brief Reads the conversion results difference between the P (AIN2) and N (AIN3) input.
+	@return :: int16_t : The ADC reading a signed value since the difference
+	can be either positive or negative.
+*/
 int16_t PICO_ADS1X15::readADC_Diff23()
 {
 	startADCReading(ADSXRegConfigMuxDiff_2_3, ADSSingleShotMode);
@@ -176,14 +196,15 @@ int16_t PICO_ADS1X15::readADC_Diff23()
 	return getLastConversionResults();
 }
 
-// @brief Sets up the comparator to operate in basic mode
-// @param channel enum ADSX_AINX_e : ADC channel to use 0-3
-// @param threshold int16_t : threshold comparator
-// @note  the ALERT/RDY pin to assert (go from high to low) when the ADC
-// value exceeds the specified threshold.
-// This will also set the ADC in continuous conversion mode.
-void PICO_ADS1X15::startComparator_SingleEnded(ADSX_AINX_e channel,
-																							 int16_t threshold)
+/*!
+	@brief Sets up the comparator to operate in basic mode
+	@param channel enum ADSX_AINX_e : ADC channel to use 0-3
+	@param threshold int16_t : threshold comparator
+	@note  the ALERT/RDY pin to assert (go from high to low) when the ADC
+	value exceeds the specified threshold. This will also set 
+	the ADC in continuous conversion mode.
+*/
+void PICO_ADS1X15::startComparator_SingleEnded(ADSX_AINX_e channel, int16_t threshold)
 {
 	uint16_t configuration =
 			ADSX::REG_CONFIG_CQUE_1CONV |	 // Comparator enabled and asserts on 1
@@ -219,9 +240,11 @@ void PICO_ADS1X15::startComparator_SingleEnded(ADSX_AINX_e channel,
 	writeRegister(ADSX::REG_POINTER_CONFIG, configuration);
 }
 
-// @brief In order to clear the comparator, we need to read the conversion results.
-// This function reads the last conversion results without changing the config value.
-// @return :: the last ADC reading
+/*!
+	@brief In order to clear the comparator, we need to read the conversion results.
+	This function reads the last conversion results without changing the config value.
+	@return :: the last ADC reading
+*/
 int16_t PICO_ADS1X15::getLastConversionResults()
 {
 	// Read the conversion results
@@ -243,10 +266,12 @@ int16_t PICO_ADS1X15::getLastConversionResults()
 	}
 }
 
-// @brief @return true if conversion is complete, false otherwise
-// @param: The ADC reading in raw counts
-// @return :: the ADC reading in voltage.
-// @note :: see data sheet Table 3
+/*!
+	@brief  returns true if conversion is complete, false otherwise
+	@param counts The ADC reading in raw counts
+	@return :: the ADC reading in voltage.
+	@note :: see data sheet Table 3
+*/
 float PICO_ADS1X15::computeVolts(int16_t counts)
 {
 	float FullScaleRange;
@@ -276,13 +301,15 @@ float PICO_ADS1X15::computeVolts(int16_t counts)
 	return counts * (FullScaleRange / (32768 >> _BitShift));
 }
 
-// @brief Non-blocking start conversion function
-// @param mux enum ADSXRegConfig_e :: Mux field value
-// @param ConfigMode enum :: Config mode , Continuous conversion or single shot
-// @note :: Call getLastConversionResults() once conversionComplete() @return true.
-// In continuous mode, getLastConversionResults() will always return the
-// latest result. ALERT/RDY pin is set to RDY mode, and a 8us pulse is generated every
-// time new data is ready.
+/*!
+	@brief Non-blocking start conversion function
+	@param mux enum ADSXRegConfig_e :: Mux field value
+	@param ConfigMode enum :: Config mode , Continuous conversion or single shot
+	@note Call getLastConversionResults() once conversionComplete() returns true.
+	In continuous mode, getLastConversionResults() will always return the
+	latest result. ALERT/RDY pin is set to RDY mode, and a 8us pulse is generated every
+	time new data is ready.
+*/
 void PICO_ADS1X15::startADCReading(ADSXRegConfig_e mux, ADSXConfigMode_e ConfigMode)
 {
 	uint16_t configuration =
@@ -314,16 +341,20 @@ void PICO_ADS1X15::startADCReading(ADSXRegConfig_e mux, ADSXConfigMode_e ConfigM
 	writeRegister(ADSX::REG_POINTER_LOWTHRESH, 0x0000);
 }
 
-// @brief Checks whether conversion is complete
-// @return :: bool : true if conversion is complete, false otherwise
+/*!
+	@brief Checks whether conversion is complete
+	@return bool : true if conversion is complete, false otherwise
+*/
 bool PICO_ADS1X15::conversionComplete()
 {
 	return (readRegister(ADSX::REG_POINTER_CONFIG) & 0x8000) != 0;
 }
 
-// @brief Write 16-bits to the specified destination register
-// @param reg  uint8_t : register address to write
-// @param value uint16_t : Value to write to register
+/*!
+	@brief Write 16-bits to the specified destination register
+	@param reg  register address to write
+	@param value Value to write to register
+*/
 void PICO_ADS1X15::writeRegister(uint8_t reg, uint16_t value)
 {
 	_dataBuffer[0] = reg;
@@ -343,9 +374,11 @@ void PICO_ADS1X15::writeRegister(uint8_t reg, uint16_t value)
 	}
 }
 
-// @brief Read 16-bits from the specified destination register
-// @param registerRead uint8_t : register address to read from
-//@return uint16_t : Value to read to register
+/*!
+	@brief Read 16-bits from the specified destination register
+	@param registerRead uint8_t : register address to read from
+	@return Value to read to register
+*/
 uint16_t PICO_ADS1X15::readRegister(uint8_t registerRead)
 {
 	_dataBuffer[0] = registerRead;

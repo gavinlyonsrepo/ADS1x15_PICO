@@ -15,7 +15,7 @@
 // comment this in for serial debugging
 // #define ADS_SERIAL_DEBUG 1
 
-// Super class for all varients ADS1x15
+/*! Super class for all varients ADS1x15 */
 class PICO_ADS1X15
 {
 	protected:
@@ -89,25 +89,25 @@ public:
 	/*! 8-bit I2C address*/
 	enum ADSXAddressI2C_e : uint8_t
 	{
-		ADSX_ADDRESS_GND = 0x48, // default ADDR connected to gnd
-		ADSX_ADDRESS_VDD = 0x49, // ADDR connected to VDD
-		ADSX_ADDRESS_SDA = 0x4A, // ADDR connected to SDA
-		ADSX_ADDRESS_SCLK = 0x4B // ADDR connected to SCLK
+		ADSX_ADDRESS_GND = 0x48, /**< default ADDR connected to gnd*/
+		ADSX_ADDRESS_VDD = 0x49, /**< ADDR connected to VDD*/
+		ADSX_ADDRESS_SDA = 0x4A, /**< ADDR connected to SDA*/
+		ADSX_ADDRESS_SCLK = 0x4B /**< ADDR connected to SCLK*/
 	};
 
 	/*! ADC Channel Numbers */
 	enum ADSX_AINX_e : uint8_t
 	{
-		ADSX_AIN0 = 0, // Channel AIN0
-		ADSX_AIN1 = 1, // Channel AIN1
-		ADSX_AIN2 = 2, // Channel AIN2
-		ADSX_AIN3 = 3	 // Channel AIN3
+		ADSX_AIN0 = 0, /**< Channel AIN0*/
+		ADSX_AIN1 = 1, /**< Channel AIN1*/
+		ADSX_AIN2 = 2, /**< Channel AIN2*/
+		ADSX_AIN3 = 3	/**< Channel AIN3 */
 	};
 
 	/*! Gain Settings */
 	enum ADSXGain_e : uint16_t
 	{
-		ADSXGain_TWOTHIRDS = ADSX::REG_CONFIG_PGA_6_144V,
+		ADSXGain_TWOTHIRDS = ADSX::REG_CONFIG_PGA_6_144V, 
 		ADSXGain_ONE = ADSX::REG_CONFIG_PGA_4_096V,
 		ADSXGain_TWO = ADSX::REG_CONFIG_PGA_2_048V,
 		ADSXGain_FOUR =ADSX::REG_CONFIG_PGA_1_024V,
@@ -157,31 +157,31 @@ public:
 	bool conversionComplete();
 
 protected :
-	uint8_t _BitShift;	 // bit shift amount
-	ADSXGain_e _ADCGain; // PGA ADC gain
-	uint16_t _DataRate;	 // Data rate
+	uint8_t _BitShift;	 /**< bit shift amount */
+	ADSXGain_e _ADCGain; /**< PGA ADC gain */
+	uint16_t _DataRate;	 /**< Data rate */
 
 private:
-	i2c_inst_t *_i2c; // i2C port number i2c0 or i2c1
-	uint8_t _SDataPin;
-	uint8_t _SClkPin;
-	uint16_t _CLKSpeed = 100; // I2C bus speed in khz
+	i2c_inst_t *_i2c; /**< i2C port number i2c0 or i2c1 */
+	uint8_t _SDataPin; /**< GPIO for I2C data pin */
+	uint8_t _SClkPin;  /**< GPIO for I2C Clock pin */
+	uint16_t _CLKSpeed = 100; /**< I2C bus speed in khz */
 	ADSXAddressI2C_e _AddresI2C = ADSX_ADDRESS_GND;
-	uint8_t _dataBuffer[3];
-	uint32_t _ADSX_I2C_DELAY = 50000; // uS delay , I2C timeout
+	uint8_t _dataBuffer[3];  /**< i2C comms Data buffer  */
+	uint32_t _ADSX_I2C_DELAY = 50000; /**< uS delay , I2C timeout */
 	// I2C interface
 	void writeRegister(uint8_t reg, uint16_t value);
 	uint16_t readRegister(uint8_t reg);
 };
 
-// ADS1015 sub class
+/*! @brief ADS1015 sub class */
 class PICO_ADS1015 : public PICO_ADS1X15
 {
 public:
 	PICO_ADS1015();
 };
 
-// ADS1115 sub class
+/*! @brief ADS1115 sub class */
 class PICO_ADS1115 : public PICO_ADS1X15
 {
 public:
