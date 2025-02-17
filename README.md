@@ -19,7 +19,7 @@
 ## Overview
 
 * Name: ADS1x15_PICO
-* @brief
+* Description: 
 
 Library Driver for  ADC sensor,  ADS1015 and ADS1115 modules,
 for Raspberry pi PICO RP2040. 
